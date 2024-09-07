@@ -6,10 +6,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 
+@Component
 public class JwtResponseHandler {
    @Autowired
    private JwtUtil jwtUtil;
@@ -21,7 +23,7 @@ public class JwtResponseHandler {
          System.out.println("Valid Token: " + username);
          Map<String, Object> responseData = new HashMap<>();
          responseData.put("status", HttpStatus.OK.value());
-         responseData.put("message", "Berhasil dapatkan data role");
+         responseData.put("message", "Successfully Get Data");
          responseData.put("data", data);
          return ResponseEntity.ok(responseData);
       } catch (ExpiredJwtException e) {

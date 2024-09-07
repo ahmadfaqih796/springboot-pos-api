@@ -73,11 +73,11 @@ public class AuthController {
             responseData.put("message", "berhasil login");
 
             Map<String, Object> userData = new HashMap<>();
-            userData.put("full_name", loggedInUser.getFull_name());
+            userData.put("full_name", loggedInUser.getFullName());
             userData.put("position", loggedInUser.getPosition());
             userData.put("telephone", loggedInUser.getTelephone());
             userData.put("username", loggedInUser.getUsername());
-            userData.put("agent_id", loggedInUser.getAgent_id());
+            userData.put("agent_id", loggedInUser.getAgentId());
             userData.put("token", token);
             responseData.put("data", userData);
             return ResponseEntity.ok(responseData);

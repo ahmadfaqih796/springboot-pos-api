@@ -14,7 +14,7 @@ public class UserEntity {
 
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long agent_id;
+   private Long agentId;
 
    @Column(name = "username", length = 100, nullable = false, unique = true)
    private String username;
@@ -23,7 +23,7 @@ public class UserEntity {
    private String password;
 
    @Column(name = "full_name", length = 100, nullable = false)
-   private String full_name;
+   private String fullName;
 
    @Column(name = "position", length = 100)
    private String position;
@@ -38,22 +38,22 @@ public class UserEntity {
    public UserEntity() {
    }
 
-   public UserEntity(Long agent_id, String username, String password, String full_name, String position,
+   public UserEntity(Long agentId, String username, String password, String fullName, String position,
          Integer telephone) {
-      this.agent_id = agent_id;
+      this.agentId = agentId;
       this.username = username;
       this.password = password;
-      this.full_name = full_name;
+      this.fullName = fullName;
       this.position = position;
       this.telephone = telephone;
    }
 
-   public Long getAgent_id() {
-      return agent_id;
+   public Long getAgentId() {
+      return agentId;
    }
 
-   public void setAgent_id(Long agent_id) {
-      this.agent_id = agent_id;
+   public void setAgentId(Long agentId) {
+      this.agentId = agentId;
    }
 
    public String getUsername() {
@@ -72,12 +72,12 @@ public class UserEntity {
       this.password = MD5PasswordEncoder.encode(password);
    }
 
-   public String getFull_name() {
-      return full_name;
+   public String getFullName() {
+      return fullName;
    }
 
-   public void setFull_name(String full_name) {
-      this.full_name = full_name;
+   public void setFullName(String fullName) {
+      this.fullName = fullName;
    }
 
    public String getPosition() {

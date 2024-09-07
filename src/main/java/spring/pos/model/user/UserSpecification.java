@@ -7,9 +7,17 @@ public class UserSpecification {
       return (root, query, builder) -> {
          String pattern = "%" + keyword.toLowerCase() + "%";
          return builder.or(
-               builder.like(builder.lower(root.get("full_name")), pattern),
+               builder.like(builder.lower(root.get("fullName")), pattern),
                builder.like(builder.lower(root.get("position")), pattern),
-               builder.like(builder.toString(root.get("agent_id")), pattern));
+               builder.like(builder.toString(root.get("agentId")), pattern));
+
       };
    }
+
+   public static Specification<UserEntity> containsAgentId(String agentId) {
+      return (root, query, builder) -> {
+         return builder.equal(root.get("agentId"), agentId);
+      };
+   }
+
 }
