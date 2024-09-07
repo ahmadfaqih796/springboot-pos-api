@@ -1,5 +1,6 @@
 package spring.pos.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -23,5 +24,18 @@ public class GlobalExceptionHandler {
       body.put("path", request.getDescription(false).substring(4));
 
       return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+   }
+
+   @ExceptionHandler(DataIntegrityViolationException.class)
+   public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex,
+         WebRequest request) {
+      Map<String, Object> body = new HashMap<>();
+      body.put("timestamp", LocalDateTime.now());
+      body.put("status", HttpStatus.CONFLICT.value());
+      body.put("error", "Data Integrity Violation");
+      body.put("message", "Cannot delete: Data is still being used.");
+      body.put("path", request.getDescription(false).substring(4));
+
+      return new ResponseEntity<>(body, HttpStatus.CONFLICT);
    }
 }
