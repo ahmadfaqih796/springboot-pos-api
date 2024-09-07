@@ -5,7 +5,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import spring.pos.model.role.RoleEntity;
 import spring.pos.util.MD5PasswordEncoder;
 
 @Entity
@@ -31,21 +36,22 @@ public class UserEntity {
    @Column(name = "telephone", length = 100)
    private Integer telephone;
 
-   // @ManyToOne
-   // @JoinColumn(name = "address_id")
-   // private AddressEntity addressEntity;
+   @ManyToOne
+   @JoinColumn(name = "role_id")
+   private RoleEntity roleEntity;
 
    public UserEntity() {
    }
 
    public UserEntity(Long agentId, String username, String password, String fullName, String position,
-         Integer telephone) {
+         Integer telephone, RoleEntity roleEntity) {
       this.agentId = agentId;
       this.username = username;
       this.password = password;
       this.fullName = fullName;
       this.position = position;
       this.telephone = telephone;
+      this.roleEntity = roleEntity;
    }
 
    public Long getAgentId() {
@@ -96,12 +102,12 @@ public class UserEntity {
       this.telephone = telephone;
    }
 
-   // public AddressEntity getAddressEntity() {
-   // return addressEntity;
-   // }
+   public RoleEntity getRoleEntity() {
+      return roleEntity;
+   }
 
-   // public void setAddressEntity(AddressEntity addressEntity) {
-   // this.addressEntity = addressEntity;
-   // }
+   public void setRoleEntity(RoleEntity roleEntity) {
+      this.roleEntity = roleEntity;
+   }
 
 }
