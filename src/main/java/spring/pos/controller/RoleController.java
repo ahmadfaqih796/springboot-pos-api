@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import spring.pos.model.role.RoleEntity;
-import spring.pos.model.role.RoleRepository;
 import spring.pos.service.RoleService;
 import spring.pos.util.JwtResponseHandler;
 import spring.pos.util.ResponseHandler;
@@ -24,9 +23,6 @@ import spring.pos.util.ResponseHandler;
 @RestController
 @RequestMapping("/roles")
 public class RoleController {
-
-   @Autowired
-   private RoleRepository roleRepository;
 
    @Autowired
    private RoleService roleService;

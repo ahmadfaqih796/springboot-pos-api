@@ -8,8 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import spring.pos.model.user.UserEntity;
-
 public class ResponseHandler {
 
    public static ResponseEntity<Object> generateResponse(String message, HttpStatus status, Object data) {
