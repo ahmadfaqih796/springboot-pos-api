@@ -1,14 +1,21 @@
 package spring.pos.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.TransactionScoped;
+import spring.pos.helper.PaginationHelper;
 import spring.pos.model.role.RoleEntity;
 import spring.pos.model.role.RoleRepository;
+import spring.pos.model.role.RoleSpecification;
 import spring.pos.model.user.UserRepository;
 
 @Service
@@ -21,8 +28,26 @@ public class RoleService {
    @Autowired
    private UserRepository userRepository;
 
-   public List<RoleEntity> findAll() {
-      return roleRepository.findAll();
+   public Map<String, Object> get(
+         int page,
+         int size,
+         String sortField,
+         String sortDir,
+         String keyword,
+         boolean disabledPagination) {
+      Map<String, Object> response = new HashMap<>();
+      Specification<RoleEntity> spec = RoleSpecification.containsKeyword(keyword);
+      if (disabledPagination) {
+         List<RoleEntity> roles = roleRepository.findAll(spec);
+         response.put("content", roles);
+         response.put("totalElements", roles.size());
+      } else {
+         Pageable pageable = PaginationHelper.createPageable(page, size, sortField, sortDir);
+         Page<RoleEntity> roles = PaginationHelper.fetchPageData(pageable, spec, roleRepository, !keyword.isEmpty(),
+               keyword);
+         response = PaginationHelper.responsePagination(roles);
+      }
+      return response;
    }
 
    public RoleEntity create(RoleEntity role) throws IllegalArgumentException {

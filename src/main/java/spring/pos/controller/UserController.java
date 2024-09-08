@@ -38,6 +38,7 @@ public class UserController {
          @RequestParam(value = "sortField", defaultValue = "agentId") String sortField,
          @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
          @RequestParam(value = "keyword", defaultValue = "") String keyword) {
+
       Sort sort = Sort.by(sortField);
       if (sortDir.equals("asc")) {
          sort = sort.ascending();
@@ -46,7 +47,6 @@ public class UserController {
       }
       Pageable pageable = PageRequest.of(page, size, sort);
       Page<UserEntity> users;
-
       if (keyword.isEmpty()) {
          users = userRepository.findAll(pageable);
       } else {
