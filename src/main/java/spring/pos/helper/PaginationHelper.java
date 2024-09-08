@@ -1,6 +1,7 @@
 package spring.pos.helper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -32,10 +33,10 @@ public class PaginationHelper {
       return response;
    }
 
-   public static <T> Map<String, Object> responseDisabledPagination(Page<T> pageData) {
+   public static <T> Map<String, Object> responseDisabledPagination(List<T> content) {
       Map<String, Object> response = new HashMap<>();
-      response.put("content", pageData.getContent());
-      response.put("totalElements", pageData.getTotalElements());
+      response.put("content", content);
+      response.put("totalElements", content.size());
       return response;
    }
 
@@ -46,5 +47,46 @@ public class PaginationHelper {
          return repository.findAll(spec, pageable);
       }
       return repository.findAll(null, pageable);
+   }
+
+   public static <T> Object fetchData(
+         int page,
+         int size,
+         String sortField,
+         String sortDir,
+         boolean disabledPagination,
+         Specification<T> spec,
+         JpaSpecificationExecutor<T> repository) {
+      Sort sort = Sort.by(sortField);
+      if (sortDir.equalsIgnoreCase("asc")) {
+         sort = sort.ascending();
+      } else {
+         sort = sort.descending();
+      }
+
+      if (disabledPagination) {
+         return repository.findAll(spec, sort);
+      } else {
+         Pageable pageable = PageRequest.of(page, size, sort);
+         return repository.findAll(spec, pageable);
+      }
+   }
+
+   @SuppressWarnings("unchecked")
+   public static <T> Map<String, Object> buildResponse(
+         int page,
+         int size,
+         String sortField,
+         String sortDir,
+         boolean disabledPagination,
+         Specification<T> spec,
+         JpaSpecificationExecutor<T> repository) {
+      if (disabledPagination) {
+         List<T> allData = (List<T>) fetchData(page, size, sortField, sortDir, true, spec, repository);
+         return responseDisabledPagination(allData);
+      } else {
+         Page<T> paginatedData = (Page<T>) fetchData(page, size, sortField, sortDir, false, spec, repository);
+         return responsePagination(paginatedData);
+      }
    }
 }
