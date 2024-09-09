@@ -38,10 +38,16 @@
 		</dependency>
 
 		<!-- Spring Boot Starter Security -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency> -->
+		</dependency>
+
+		<!-- For password encoding (optional but recommended) -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-crypto</artifactId>
+		</dependency>
 
 		<!-- Spring Boot Starter JPA -->
 		<dependency>
@@ -69,6 +75,7 @@
 			<artifactId>jjwt</artifactId>
 			<version>0.12.6</version>
 		</dependency> -->
+
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>

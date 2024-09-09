@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import io.jsonwebtoken.security.SignatureException;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,4 +66,17 @@ public class GlobalExceptionHandler {
 
       return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
    }
+
+   @ExceptionHandler(SignatureException.class)
+   public ResponseEntity<Object> handleSignatureException(SignatureException ex, WebRequest request) {
+      Map<String, Object> body = new HashMap<>();
+      body.put("timestamp", LocalDateTime.now());
+      body.put("status", HttpStatus.UNAUTHORIZED.value());
+      body.put("error", "Invalid JWT Signature");
+      body.put("message", "The JWT signature does not match the locally computed signature.");
+      body.put("path", request.getDescription(false).substring(4));
+
+      return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+   }
+
 }

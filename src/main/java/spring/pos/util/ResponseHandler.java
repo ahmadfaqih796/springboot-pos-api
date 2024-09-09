@@ -29,4 +29,12 @@ public class ResponseHandler {
       response.put("number", pageData.getNumber());
       return response;
    }
+
+   public ResponseEntity<Map<String, Object>> buildUnauthorizedResponse(String message) {
+      Map<String, Object> responseData = new HashMap<>();
+      responseData.put("status", HttpStatus.UNAUTHORIZED.value());
+      responseData.put("message", message);
+      responseData.put("data", null);
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseData);
+   }
 }
