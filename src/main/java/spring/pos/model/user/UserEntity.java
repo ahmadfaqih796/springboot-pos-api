@@ -111,7 +111,7 @@ public class UserEntity {
       if (roleEntity == null) {
          return null;
       }
-      String[] fields = { "name", "createdAt" };
+      String[] fields = { "roleId", "name" };
       return new RoleDTO(roleEntity, fields);
    }
 

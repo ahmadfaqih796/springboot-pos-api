@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RoleDTO {
 
+   private Long roleId;
    private String name;
    private LocalDateTime createdAt;
    private LocalDateTime updatedAt;
@@ -20,6 +21,10 @@ public class RoleDTO {
    public RoleDTO(RoleEntity roleEntity, String[] fields) {
       Map<String, Boolean> fieldsMap = new HashMap<>();
       Arrays.stream(fields).forEach(field -> fieldsMap.put(field, true));
+
+      if (fieldsMap.containsKey("roleId")) {
+         this.roleId = roleEntity.getRoleId();
+      }
 
       if (fieldsMap.containsKey("name")) {
          this.name = roleEntity.getName();
@@ -54,5 +59,13 @@ public class RoleDTO {
 
    public void setName(String name) {
       this.name = name;
+   }
+
+   public Long getRoleId() {
+      return roleId;
+   }
+
+   public void setRoleId(Long roleId) {
+      this.roleId = roleId;
    }
 }
