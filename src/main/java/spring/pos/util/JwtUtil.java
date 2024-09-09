@@ -15,8 +15,8 @@ public class JwtUtil {
 
    private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
    // hitungannya mili detik
-   // private static final long EXPIRATION_TIME = 86400000; // 1 hari
-   private static final long EXPIRATION_TIME = 10000; // 10 detik
+   private static final long EXPIRATION_TIME = 86400000; // 1 hari
+   // private static final long EXPIRATION_TIME = 10000; // 10 detik
 
    public String generateToken(String username) {
       Date now = new Date();

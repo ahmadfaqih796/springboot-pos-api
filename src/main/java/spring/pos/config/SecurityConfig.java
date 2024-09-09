@@ -46,15 +46,15 @@ public class SecurityConfig {
       return userDetailsService;
    }
 
+   @SuppressWarnings("deprecation")
    @Bean
    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
       http
-            .csrf().disable()
-            .authorizeRequests()
-            .requestMatchers("/auth/**").permitAll() // URLs accessible without authentication
-            .anyRequest().authenticated() // All other requests require authentication
-            .and()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Stateless session
+            .csrf(csrf -> csrf.disable())
+            .authorizeRequests(requests -> requests
+                  .requestMatchers("/auth/**").permitAll() // untuk akses auth tanpa authorization
+                  .anyRequest().authenticated())
+            .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
       http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
