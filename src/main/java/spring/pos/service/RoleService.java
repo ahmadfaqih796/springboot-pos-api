@@ -60,6 +60,30 @@ public class RoleService {
       return roleRepository.save(role);
    }
 
+   public RoleEntity update(Long roleId, RoleEntity payload) {
+      // Fetch the role by its ID or throw an exception if it doesn't exist
+      RoleEntity roleEntity = roleRepository.findById(roleId)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+
+      // Check if another role with the same name exists and isn't the one being
+      // updated
+      Optional<RoleEntity> existingRole = roleRepository.findByName(payload.getName());
+      if (existingRole.isPresent() && !existingRole.get().getRoleId().equals(roleId)) {
+         throw new IllegalArgumentException("Role name already exists");
+      }
+
+      // Validate the payload (e.g., role name not empty, max length, etc.)
+      validateRole(payload);
+
+      // Apply changes from the payload to the fetched role entity
+      roleEntity.setName(payload.getName());
+      // Apply any other fields from payload as needed, e.g., createdAt, updatedAt,
+      // etc.
+
+      // Save the updated role entity
+      return roleRepository.save(roleEntity);
+   }
+
    public void delete(Long roleId) {
       RoleEntity roleEntity = roleRepository.findById(roleId)
             .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -71,9 +95,7 @@ public class RoleService {
       if (hasUser) {
          throw new IllegalArgumentException("Role has users");
       }
-
       roleRepository.delete(roleEntity);
-
    }
 
    private void validateRole(RoleEntity role) throws IllegalArgumentException {

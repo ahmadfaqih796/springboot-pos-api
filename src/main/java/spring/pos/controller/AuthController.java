@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import spring.pos.model.user.UserRepository;
 import spring.pos.service.AuthService;
 import spring.pos.util.JwtUtil;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
