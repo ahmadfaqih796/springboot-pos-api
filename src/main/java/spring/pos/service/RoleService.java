@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.TransactionScoped;
 import spring.pos.helper.PaginationHelper;
+import spring.pos.helper.ValidationHelper;
 import spring.pos.model.role.RoleEntity;
 import spring.pos.model.role.RoleRepository;
 import spring.pos.model.role.RoleSpecification;
@@ -76,8 +77,7 @@ public class RoleService {
    }
 
    private void validateRole(RoleEntity role) throws IllegalArgumentException {
-      if (role.getName() == null || role.getName().isEmpty()) {
-         throw new IllegalArgumentException("Role name cannot be empty");
-      }
+      Map<String, Object> nameRules = Map.of("minLength", 3, "maxLength", 10);
+      ValidationHelper.validateField("Name", role.getName(), nameRules);
    }
 }
