@@ -52,11 +52,11 @@ public class SecurityConfig {
       http
             .csrf(csrf -> csrf.disable())
             .authorizeRequests(requests -> requests
-                  .requestMatchers("/auth/**").permitAll() // untuk akses auth tanpa authorization
+                  .requestMatchers("/auth/**").permitAll()
+                  .requestMatchers("/roles/**").permitAll()
                   .anyRequest().authenticated())
-            .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-      http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
       return http.build();
    }

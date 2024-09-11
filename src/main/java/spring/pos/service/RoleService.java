@@ -1,5 +1,6 @@
 package spring.pos.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,6 +25,10 @@ public class RoleService {
 
    @Autowired
    private UserRepository userRepository;
+
+   public List<RoleEntity> getAll() {
+      return roleRepository.findAll();
+   }
 
    public Map<String, Object> get(
          int page,

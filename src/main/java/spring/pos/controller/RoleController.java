@@ -1,5 +1,6 @@
 package spring.pos.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import spring.pos.model.role.RoleEntity;
+import spring.pos.model.role.RoleSpecification;
 import spring.pos.service.RoleService;
 import spring.pos.util.JwtResponseHandler;
 import spring.pos.util.ResponseHandler;
@@ -33,6 +35,12 @@ public class RoleController {
    @Autowired
    private JwtResponseHandler jwtResponseHandler;
 
+   @GetMapping("/all")
+   public ResponseEntity<List<RoleEntity>> getAllRoles() {
+      // Implement logic to return all roles
+      return ResponseEntity.ok(roleService.getAll());
+   }
+
    @GetMapping()
    public ResponseEntity<Map<String, Object>> getRole(
          @RequestHeader("Authorization") String token,
@@ -45,13 +53,15 @@ public class RoleController {
 
       // Pageable pageable = PaginationHelper.createPageable(page, size, sortField,
       // sortDir);
-      // Specification<RoleEntity> spec = RoleSpecification.containsKeyword(keyword);
+      // Specification<RoleEntity> spec =
+      RoleSpecification.containsKeyword(keyword);
       // Page<RoleEntity> roles = PaginationHelper.fetchPageData(pageable, spec,
       // roleRepository, !keyword.isEmpty(),
       // keyword);
       // Map<String, Object> response = PaginationHelper.responsePagination(roles);
 
-      Map<String, Object> response = roleService.get(page, size, sortField, sortDir, keyword, disabledPagination);
+      Map<String, Object> response = roleService.get(page, size, sortField,
+            sortDir, keyword, disabledPagination);
       return jwtResponseHandler.handleToken(token, response);
    }
 

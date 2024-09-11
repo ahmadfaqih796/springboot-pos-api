@@ -13,6 +13,7 @@ import jakarta.transaction.TransactionScoped;
 import spring.pos.model.user.UserEntity;
 import spring.pos.model.user.UserRepository;
 import spring.pos.util.JwtUtil;
+import spring.pos.util.ResponseHandler;
 
 @Service
 @TransactionScoped
@@ -25,10 +26,22 @@ public class AuthService {
    private JwtUtil jwtUtil;
 
    // Register User
-   public UserEntity register(UserEntity users) {
-      // String encodedPassword = MD5PasswordEncoder.encode(users.getPassword());
-      // users.setPassword(encodedPassword);
-      return userRepository.save(users);
+   public ResponseEntity<Object> register(UserEntity user) {
+      // String encodedPassword = MD5PasswordEncoder.encode(user.getPassword());
+      // user.setPassword(encodedPassword);
+      // return userRepository.save(user);
+      try {
+         if (userRepository.findByUsername(user.getUsername()).isEmpty()) {
+            UserEntity userResponse = userRepository.save(user);
+            return ResponseHandler.generateResponse("User registered successfully", HttpStatus.OK, userResponse);
+         } else {
+            throw new IllegalArgumentException("Username already exists");
+         }
+      } catch (Exception e) {
+         // Log the exception
+         System.err.println("Error during registration: " + e.getMessage());
+         throw e;
+      }
    }
 
    public List<UserEntity> checkUser(UserEntity users) {

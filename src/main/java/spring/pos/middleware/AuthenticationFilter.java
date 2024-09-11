@@ -42,6 +42,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
       String username = null;
       String jwt = null;
 
+      // untuk mengakses path tanpa token
+      if (request.getRequestURI().startsWith("/roles/")) {
+         chain.doFilter(request, response);
+         return;
+      }
+
       try {
          if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
