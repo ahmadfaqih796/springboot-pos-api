@@ -43,7 +43,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
       String jwt = null;
 
       // untuk mengakses path tanpa token
-      if (request.getRequestURI().startsWith("/roles/")) {
+      if (request.getRequestURI().startsWith("/swagger-ui/")
+            ||
+            request.getRequestURI().startsWith("/v3/api-docs/")) {
          chain.doFilter(request, response);
          return;
       }
