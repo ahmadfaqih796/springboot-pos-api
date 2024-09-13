@@ -12,7 +12,10 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.TransactionScoped;
 import spring.pos.model.user.UserEntity;
 import spring.pos.model.user.UserRepository;
+import spring.pos.schema.auth.login.LoginRequest;
+import spring.pos.schema.auth.login.LoginResponse;
 import spring.pos.util.JwtUtil;
+import spring.pos.util.MD5PasswordEncoder;
 import spring.pos.util.ResponseHandler;
 
 @Service
@@ -46,6 +49,44 @@ public class AuthService {
 
    public List<UserEntity> checkUser(UserEntity users) {
       return userRepository.findByUsername(users.getUsername());
+   }
+
+   public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
+      List<UserEntity> existingUsers = userRepository.findByUsername(loginRequest.getUsername());
+      if (!existingUsers.isEmpty()) {
+         String password = MD5PasswordEncoder.encode(loginRequest.getPassword());
+         boolean loginSuccessful = userRepository.findByUsernameAndPassword(
+               loginRequest.getUsername(), password).isPresent();
+         System.out.println(
+               "Login request received for user: " + loginRequest.getUsername() + " - " + password);
+         if (loginSuccessful) {
+            String token = jwtUtil.generateToken(loginRequest.getUsername());
+            UserEntity loggedInUser = existingUsers.get(0);
+
+            LoginResponse.UserData.RoleData roleData = new LoginResponse.UserData.RoleData(
+                  loggedInUser.getRoleDTO().getRoleId(),
+                  loggedInUser.getRoleDTO().getName());
+
+            LoginResponse.UserData userData = new LoginResponse.UserData(
+                  loggedInUser.getAgentId(), roleData, loggedInUser.getFullName(),
+                  loggedInUser.getPosition(), loggedInUser.getUsername(),
+                  loggedInUser.getTelephone(), token);
+
+            LoginResponse response = LoginResponse.builder()
+                  .status(HttpStatus.OK.value())
+                  .message("berhasil login")
+                  .data(userData)
+                  .build();
+
+            return ResponseEntity.ok(response);
+         } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                  .body(new LoginResponse(HttpStatus.UNAUTHORIZED.value(), "Invalid username or password", null));
+         }
+      } else {
+         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+               .body(new LoginResponse(HttpStatus.NOT_FOUND.value(), "User not found", null));
+      }
    }
 
    public ResponseEntity<Map<String, Object>> login(UserEntity users) {
