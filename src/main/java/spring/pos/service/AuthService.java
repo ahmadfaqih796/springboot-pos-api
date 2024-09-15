@@ -10,10 +10,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.TransactionScoped;
+import spring.pos.model.role.RoleEntity;
+import spring.pos.model.role.RoleRepository;
 import spring.pos.model.user.UserEntity;
 import spring.pos.model.user.UserRepository;
 import spring.pos.schema.auth.login.LoginRequest;
 import spring.pos.schema.auth.login.LoginResponse;
+import spring.pos.schema.auth.register.RegisterRequest;
+import spring.pos.schema.auth.register.RegisterResponse;
+import spring.pos.schema.auth.register.RegisterResponse.UserData;
+import spring.pos.schema.auth.register.RegisterResponse.UserData.RoleData;
 import spring.pos.util.JwtUtil;
 import spring.pos.util.MD5PasswordEncoder;
 import spring.pos.util.ResponseHandler;
@@ -26,9 +32,51 @@ public class AuthService {
    private UserRepository userRepository;
 
    @Autowired
+   private RoleRepository roleRepository;
+
+   @Autowired
    private JwtUtil jwtUtil;
 
    // Register User
+   public ResponseEntity<RegisterResponse> register(RegisterRequest user) {
+      try {
+         if (userRepository.findByUsername(user.getUsername()).isEmpty()) {
+
+            // Fetch role entity from database
+            RoleEntity roleEntity = roleRepository.findById(user.getRoleId())
+                  .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+            UserEntity newUser = new UserEntity();
+            newUser.setUsername(user.getUsername());
+            newUser.setPassword(user.getPassword());
+            newUser.setFullName(user.getFullName());
+            newUser.setPosition(user.getPosition());
+            newUser.setTelephone(user.getTelephone());
+            newUser.setRoleEntity(roleEntity);
+            UserEntity userResponse = userRepository.save(newUser);
+
+            RoleData roleData = new RoleData(
+                  userResponse.getRoleEntity().getRoleId(),
+                  userResponse.getRoleEntity().getName());
+
+            UserData userData = new UserData(
+                  userResponse.getAgentId(),
+                  roleData,
+                  userResponse.getFullName(),
+                  userResponse.getPosition(),
+                  userResponse.getUsername(),
+                  userResponse.getTelephone());
+
+            return ResponseHandler.generateResponse("User registered successfully", HttpStatus.OK, userData);
+         } else {
+            throw new IllegalArgumentException("Username already exists");
+         }
+      } catch (Exception e) {
+         // Log the exception
+         System.err.println("Error during registration: " + e.getMessage());
+         throw e;
+      }
+   }
+
    public ResponseEntity<Object> register(UserEntity user) {
       // String encodedPassword = MD5PasswordEncoder.encode(user.getPassword());
       // user.setPassword(encodedPassword);
@@ -64,8 +112,8 @@ public class AuthService {
             UserEntity loggedInUser = existingUsers.get(0);
 
             LoginResponse.UserData.RoleData roleData = new LoginResponse.UserData.RoleData(
-                  loggedInUser.getRoleDTO().getRoleId(),
-                  loggedInUser.getRoleDTO().getName());
+                  loggedInUser.getRoleEntity().getRoleId(),
+                  loggedInUser.getRoleEntity().getName());
 
             LoginResponse.UserData userData = new LoginResponse.UserData(
                   loggedInUser.getAgentId(), roleData, loggedInUser.getFullName(),
@@ -110,7 +158,7 @@ public class AuthService {
             userData.put("telephone", loggedInUser.getTelephone());
             userData.put("username", loggedInUser.getUsername());
             userData.put("agentId", loggedInUser.getAgentId());
-            userData.put("roleData", loggedInUser.getRoleDTO());
+            userData.put("roleData", loggedInUser.getRoleEntity());
             userData.put("token", token);
             responseData.put("data", userData);
             return ResponseEntity.ok(responseData);

@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import spring.pos.model.role.RoleDTO;
 import spring.pos.model.role.RoleEntity;
 import spring.pos.util.MD5PasswordEncoder;
 
@@ -103,16 +102,31 @@ public class UserEntity {
       this.telephone = telephone;
    }
 
-   @JsonProperty("roleData")
-   // public RoleEntity getRoleEntity() {
-   // return roleEntity;
+   // public User roleId(String roleId) {
+   // setRoleId(roleId);
+   // return this;
    // }
-   public RoleDTO getRoleDTO() {
+
+   @JsonProperty("roleData")
+   public RoleEntity getRoleEntity() {
       if (roleEntity == null) {
          return null;
       }
-      String[] fields = { "roleId", "name" };
-      return new RoleDTO(roleEntity, fields);
+      return new RoleEntity(roleEntity.getRoleId(), roleEntity.getName());
+   }
+   // public RoleDTO getRoleDTO() {
+   // if (roleEntity == null) {
+   // return null;
+   // }
+   // String[] fields = { "roleId", "name" };
+   // return new RoleDTO(roleEntity, fields);
+   // }
+
+   public void setRoleId(Long roleId) {
+      RoleEntity roleModel = new RoleEntity();
+      roleModel.setRoleId(roleId);
+      roleModel.getName();
+      this.roleEntity = roleModel;
    }
 
    public void setRoleEntity(RoleEntity roleEntity) {

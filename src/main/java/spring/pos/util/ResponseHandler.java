@@ -10,15 +10,27 @@ import org.springframework.http.ResponseEntity;
 
 public class ResponseHandler {
 
-   public static ResponseEntity<Object> generateResponse(String message, HttpStatus status, Object data) {
+   @SuppressWarnings("unchecked")
+   public static <T> ResponseEntity<T> generateResponse(String message, HttpStatus status, Object data) {
       Map<String, Object> response = new HashMap<>();
       response.put("status", status.value());
       response.put("message", message);
       response.put("data", data);
       response.put("timestamp", LocalDateTime.now());
 
-      return new ResponseEntity<>(response, status);
+      return new ResponseEntity<>((T) response, status);
    }
+
+   // public static ResponseEntity<Object> generateResponse(String message,
+   // HttpStatus status, Object data) {
+   // Map<String, Object> response = new HashMap<>();
+   // response.put("status", status.value());
+   // response.put("message", message);
+   // response.put("data", data);
+   // response.put("timestamp", LocalDateTime.now());
+
+   // return new ResponseEntity<>( response, status);
+   // }
 
    public static <T> Map<String, Object> buildResponseData(Page<T> pageData) {
       Map<String, Object> response = new HashMap<>();

@@ -31,6 +31,11 @@ public class RoleEntity {
    public RoleEntity() {
    }
 
+   public RoleEntity(Long roleId, String name) {
+      this.roleId = roleId;
+      this.name = name;
+   }
+
    public RoleEntity(Long roleId, String name, LocalDateTime createdAt, LocalDateTime updatedAt) {
       this.roleId = roleId;
       this.name = name;
