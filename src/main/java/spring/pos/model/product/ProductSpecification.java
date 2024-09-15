@@ -2,19 +2,22 @@ package spring.pos.model.product;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import jakarta.persistence.criteria.JoinType;
+
 public class ProductSpecification {
 
    public static Specification<ProductEntity> containsKeyword(String keyword) {
       return (root, query, builder) -> {
          String pattern = "%" + keyword.toLowerCase() + "%";
 
-         var roleJoin = root.join("roleEntity");
+         var userJoin = root.join("userEntity", JoinType.LEFT);
+         var roleJoin = userJoin.join("roleEntity", JoinType.LEFT);
 
          return builder.or(
-               builder.like(builder.lower(root.get("fullName")), pattern),
-               builder.like(builder.lower(root.get("position")), pattern),
-               builder.like(builder.toString(root.get("agentId")), pattern),
-               builder.like(builder.lower(roleJoin.get("name")), pattern));
+               builder.like(builder.toString(root.get("productId")), pattern),
+               builder.like(builder.lower(root.get("name")), pattern),
+               builder.like(builder.lower(userJoin.get("fullName")), pattern),
+               builder.like(builder.toString(roleJoin.get("name")), pattern));
       };
    }
 

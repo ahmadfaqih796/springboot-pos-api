@@ -41,22 +41,26 @@ public class AuthService {
    public ResponseEntity<RegisterResponse> register(RegisterRequest user) {
       try {
          if (userRepository.findByUsername(user.getUsername()).isEmpty()) {
-
-            // Fetch role entity from database
-            RoleEntity roleEntity = roleRepository.findById(user.getRoleId())
-                  .orElseThrow(() -> new IllegalArgumentException("Role not found"));
             UserEntity newUser = new UserEntity();
             newUser.setUsername(user.getUsername());
             newUser.setPassword(user.getPassword());
             newUser.setFullName(user.getFullName());
             newUser.setPosition(user.getPosition());
             newUser.setTelephone(user.getTelephone());
-            newUser.setRoleEntity(roleEntity);
+            if (user.getRoleId() != null) {
+               RoleEntity roleEntity = roleRepository.findById(user.getRoleId())
+                     .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+               newUser.setRoleEntity(roleEntity);
+            }
             UserEntity userResponse = userRepository.save(newUser);
 
-            RoleData roleData = new RoleData(
-                  userResponse.getRoleEntity().getRoleId(),
-                  userResponse.getRoleEntity().getName());
+            RoleData roleData = null;
+
+            if (userResponse.getRoleEntity() != null) {
+               roleData = new RoleData(
+                     userResponse.getRoleEntity().getRoleId(),
+                     userResponse.getRoleEntity().getName());
+            }
 
             UserData userData = new UserData(
                   userResponse.getAgentId(),

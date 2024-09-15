@@ -51,7 +51,10 @@ public class UserEntity {
       this.fullName = fullName;
       this.position = position;
       this.telephone = telephone;
-      this.roleEntity = roleEntity;
+
+      if (roleEntity != null) {
+         this.roleEntity = new RoleEntity(roleEntity.getRoleId(), roleEntity.getName());
+      }
    }
 
    public Long getAgentId() {
@@ -102,34 +105,19 @@ public class UserEntity {
       this.telephone = telephone;
    }
 
-   // public User roleId(String roleId) {
-   // setRoleId(roleId);
-   // return this;
-   // }
-
    @JsonProperty("roleData")
    public RoleEntity getRoleEntity() {
       if (roleEntity == null) {
          return null;
       }
-      return new RoleEntity(roleEntity.getRoleId(), roleEntity.getName());
-   }
-   // public RoleDTO getRoleDTO() {
-   // if (roleEntity == null) {
-   // return null;
-   // }
-   // String[] fields = { "roleId", "name" };
-   // return new RoleDTO(roleEntity, fields);
-   // }
-
-   public void setRoleId(Long roleId) {
-      RoleEntity roleModel = new RoleEntity();
-      roleModel.setRoleId(roleId);
-      roleModel.getName();
-      this.roleEntity = roleModel;
+      return roleEntity;
+      // return new RoleEntity(roleEntity.getRoleId(), roleEntity.getName());
    }
 
    public void setRoleEntity(RoleEntity roleEntity) {
+      if (roleEntity == null) {
+         return;
+      }
       this.roleEntity = roleEntity;
    }
 

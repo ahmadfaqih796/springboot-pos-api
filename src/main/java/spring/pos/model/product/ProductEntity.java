@@ -1,6 +1,7 @@
 package spring.pos.model.product;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,20 +38,21 @@ public class ProductEntity {
 
    @ManyToOne
    @JoinColumn(name = "created_by")
-   private UserEntity createdBy;
+   private UserEntity userEntity;
 
    public ProductEntity() {
    }
 
    public ProductEntity(Long productId, String name, Integer price, Integer stock, LocalDateTime createdAt,
-         LocalDateTime updatedAt, UserEntity createdBy) {
+         LocalDateTime updatedAt, UserEntity userEntity) {
       this.productId = productId;
       this.name = name;
       this.price = price;
       this.stock = stock;
       this.createdAt = createdAt;
       this.updatedAt = updatedAt;
-      this.createdBy = createdBy;
+      this.userEntity = userEntity;
+
    }
 
    public Long getProductId() {
@@ -101,12 +103,12 @@ public class ProductEntity {
       this.updatedAt = updatedAt;
    }
 
-   public UserEntity getCreatedBy() {
-      return createdBy;
+   public UserEntity getUserEntity() {
+      return userEntity;
    }
 
-   public void setCreatedBy(UserEntity createdBy) {
-      this.createdBy = createdBy;
+   public void setUserEntity(UserEntity createdBy) {
+      this.userEntity = createdBy;
    }
 
 }
