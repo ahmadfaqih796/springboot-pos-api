@@ -8,12 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import spring.pos.model.product.ProductEntity;
 import spring.pos.model.product.ProductSpecification;
+import spring.pos.schema.management.product.ProductRequest;
+import spring.pos.schema.management.product.ProductResponse;
 import spring.pos.service.ProductService;
 import spring.pos.util.ResponseHandler;
 
@@ -44,6 +48,12 @@ public class ProductController {
       ProductSpecification.containsKeyword(keyword);
       Map<String, Object> response = productService.get(page, size, sortField, sortDir, keyword, disabledPagination);
       return ResponseHandler.generateResponse("success get products", HttpStatus.OK, response);
+   }
+
+   @PostMapping()
+   public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
+
+      return productService.create(productRequest);
    }
 
 }
