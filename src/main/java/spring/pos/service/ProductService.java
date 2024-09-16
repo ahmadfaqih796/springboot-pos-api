@@ -83,4 +83,43 @@ public class ProductService {
       }
    }
 
+   public ResponseEntity<ProductResponse> update(Long productId, ProductRequest.UpdateRequest req) {
+
+      ProductEntity checkedProduct = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+      Optional<ProductEntity> existingProduct = productRepository.findByName(req.getName());
+      if (existingProduct.isPresent() && existingProduct.get().getProductId() != productId) {
+         throw new IllegalArgumentException("Product name already exists");
+      }
+
+      try {
+         ProductEntity productEntity = new ProductEntity(
+               productId,
+               req.getName(),
+               req.getPrice(),
+               req.getStock(),
+               checkedProduct.getCreatedAt(),
+               LocalDateTime.now(),
+               sessionService.getUserSession());
+         ProductEntity updatedProduct = productRepository.save(productEntity);
+
+         CreatedBy createdBy = Optional.ofNullable(updatedProduct.getUserEntity())
+               .map(user -> new CreatedBy(user.getAgentId(), user.getFullName()))
+               .orElse(null);
+         ProductData productData = new ProductData(
+               updatedProduct.getProductId(),
+               updatedProduct.getName(),
+               updatedProduct.getPrice(),
+               updatedProduct.getStock(),
+               checkedProduct.getCreatedAt(),
+               updatedProduct.getUpdatedAt(),
+               createdBy);
+
+         return ResponseHandler.generateResponse("Product successfully updated", HttpStatus.OK, productData);
+      } catch (Exception e) {
+         throw new IllegalArgumentException(e.getMessage());
+      }
+   }
+
 }

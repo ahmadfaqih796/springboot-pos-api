@@ -26,8 +26,6 @@ public class ProductRequest {
    @AllArgsConstructor
    @NoArgsConstructor
    public static class UpdateRequest {
-      @Schema(description = "ID of the product", example = "1")
-      private Long productId;
 
       @Schema(description = "Updated name of the product", example = "mie goreng pedas")
       private String name;
