@@ -43,6 +43,18 @@ public class ProductEntity {
    public ProductEntity() {
    }
 
+   // Create Data
+   public ProductEntity(String name, Integer price, Integer stock, LocalDateTime createdAt,
+         LocalDateTime updatedAt, UserEntity userEntity) {
+      this.name = name;
+      this.price = price;
+      this.stock = stock;
+      this.createdAt = createdAt;
+      this.updatedAt = updatedAt;
+      this.userEntity = userEntity;
+   }
+
+   // Update Data atau Get Data
    public ProductEntity(Long productId, String name, Integer price, Integer stock, LocalDateTime createdAt,
          LocalDateTime updatedAt, UserEntity userEntity) {
       this.productId = productId;
@@ -52,7 +64,6 @@ public class ProductEntity {
       this.createdAt = createdAt;
       this.updatedAt = updatedAt;
       this.userEntity = userEntity;
-
    }
 
    public Long getProductId() {

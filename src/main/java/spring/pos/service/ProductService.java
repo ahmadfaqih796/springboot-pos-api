@@ -1,7 +1,9 @@
 package spring.pos.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,8 +16,6 @@ import spring.pos.helper.PaginationHelper;
 import spring.pos.model.product.ProductEntity;
 import spring.pos.model.product.ProductRepository;
 import spring.pos.model.product.ProductSpecification;
-import spring.pos.model.user.UserEntity;
-import spring.pos.model.user.UserRepository;
 import spring.pos.schema.management.product.ProductRequest;
 import spring.pos.schema.management.product.ProductResponse;
 import spring.pos.schema.management.product.ProductResponse.ProductData;
@@ -30,7 +30,7 @@ public class ProductService {
    private ProductRepository productRepository;
 
    @Autowired
-   private UserRepository userRepository;
+   private SessionService sessionService;
 
    public List<ProductEntity> getAll(String keyword) {
       Specification<ProductEntity> spec = ProductSpecification.containsKeyword(keyword);
@@ -51,37 +51,33 @@ public class ProductService {
             productRepository);
    }
 
-   public ResponseEntity<ProductResponse> create(ProductRequest req) {
+   public ResponseEntity<ProductResponse> create(ProductRequest.CreateRequest req) {
       try {
-         ProductEntity payload = new ProductEntity();
-         payload.setName(req.getName());
-         payload.setPrice(req.getPrice());
-         payload.setStock(req.getStock());
-         payload.setCreatedAt(req.getCreatedAt());
-         payload.setUpdatedAt(req.getUpdatedAt());
-         if (req.getUserId() != null) {
-            UserEntity userEntity = userRepository.findById(req.getUserId())
-                  .orElseThrow(() -> new IllegalArgumentException(
-                        "user not found"));
-            payload.setUserEntity(userEntity);
-         }
-         ProductEntity res = productRepository.save(payload);
+         ProductEntity productEntity = new ProductEntity(
+               req.getName(),
+               req.getPrice(),
+               req.getStock(),
+               LocalDateTime.now(),
+               LocalDateTime.now(),
+               sessionService.getUserSession());
 
-         ProductData data = new ProductData();
-         CreatedBy createdBy = null;
-         if (res.getUserEntity() != null) {
-            createdBy = new CreatedBy(
-                  res.getUserEntity().getAgentId(),
-                  res.getUserEntity().getFullName());
-         }
-         data.setProductId(res.getProductId());
-         data.setName(res.getName());
-         data.setPrice(res.getPrice());
-         data.setStock(res.getStock());
-         data.setCreatedAt(res.getCreatedAt());
-         data.setUpdatedAt(res.getUpdatedAt());
-         data.setCreatedBy(createdBy);
-         return ResponseHandler.generateResponse("success create product", HttpStatus.OK, data);
+         ProductEntity savedProduct = productRepository.save(productEntity);
+
+         CreatedBy createdBy = Optional.ofNullable(savedProduct.getUserEntity())
+               .map(user -> new CreatedBy(user.getAgentId(), user.getFullName()))
+               .orElse(null);
+
+         ProductData productData = new ProductData(
+               savedProduct.getProductId(),
+               savedProduct.getName(),
+               savedProduct.getPrice(),
+               savedProduct.getStock(),
+               savedProduct.getCreatedAt(),
+               savedProduct.getUpdatedAt(),
+               createdBy);
+
+         return ResponseHandler.generateResponse("Product successfully created", HttpStatus.OK, productData);
+
       } catch (Exception e) {
          throw new IllegalArgumentException(e.getMessage());
       }
