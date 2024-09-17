@@ -17,7 +17,7 @@ public class ProductResponse {
    @Schema(description = "HTTP status code", example = "200")
    private int status;
 
-   @Schema(description = "Login status message", example = "berhasil login")
+   @Schema(description = "Product status message", example = "OK")
    private String message;
 
    @Schema(description = "Data of the product")

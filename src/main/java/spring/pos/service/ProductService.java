@@ -122,4 +122,28 @@ public class ProductService {
       }
    }
 
+   public ResponseEntity<ProductResponse> delete(Long productId) {
+
+      ProductEntity checkedProduct = productRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+      CreatedBy createdBy = Optional.ofNullable(checkedProduct.getUserEntity())
+            .map(user -> new CreatedBy(user.getAgentId(), user.getFullName()))
+            .orElse(null);
+
+      try {
+         productRepository.delete(checkedProduct);
+         ProductData productData = new ProductData(
+               checkedProduct.getProductId(),
+               checkedProduct.getName(),
+               checkedProduct.getPrice(),
+               checkedProduct.getStock(),
+               checkedProduct.getCreatedAt(),
+               checkedProduct.getUpdatedAt(),
+               createdBy);
+         return ResponseHandler.generateResponse("Product successfully deleted", HttpStatus.OK, productData);
+      } catch (Exception e) {
+         throw new IllegalArgumentException(e.getMessage());
+      }
+   }
+
 }
