@@ -1,6 +1,8 @@
 package spring.pos.model.product;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,8 +10,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import spring.pos.model.tag.TagEntity;
 import spring.pos.model.user.UserEntity;
 
 @Entity
@@ -39,6 +44,10 @@ public class ProductEntity {
    @ManyToOne
    @JoinColumn(name = "created_by")
    private UserEntity userEntity;
+
+   @ManyToMany
+   @JoinTable(name = "product_tag", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+   private Set<TagEntity> tags = new HashSet<>();
 
    public ProductEntity() {
    }
@@ -120,6 +129,14 @@ public class ProductEntity {
 
    public void setUserEntity(UserEntity createdBy) {
       this.userEntity = createdBy;
+   }
+
+   public Set<TagEntity> getTags() {
+      return tags;
+   }
+
+   public void setTags(Set<TagEntity> tags) {
+      this.tags = tags;
    }
 
 }

@@ -1,5 +1,7 @@
 package spring.pos.schema.management.product;
 
+import java.util.Set;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +22,9 @@ public class ProductRequest {
 
       @Schema(description = "Stock of the product", example = "10")
       private Integer stock;
+
+      @Schema(description = "Updated IDs of the associated tags", example = "[1, 3]")
+      private Set<Long> tagIds;
    }
 
    @Data
@@ -35,6 +40,9 @@ public class ProductRequest {
 
       @Schema(description = "Updated stock of the product", example = "15")
       private Integer stock;
+
+      @Schema(description = "IDs of the associated tags", example = "[1, 2, 3]")
+      private Set<Long> tagIds;
    }
 
    @Data

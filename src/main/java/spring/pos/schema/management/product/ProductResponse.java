@@ -2,6 +2,8 @@ package spring.pos.schema.management.product;
 
 import java.time.LocalDateTime;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,6 +51,9 @@ public class ProductResponse {
       @Schema(description = "Data of the user")
       private CreatedBy createdBy;
 
+      @Schema(description = "List of tags associated with the product")
+      private List<TagData> tags;
+
       @Data
       @AllArgsConstructor
       @NoArgsConstructor
@@ -58,6 +63,17 @@ public class ProductResponse {
 
          @Schema(description = "Full name of the user", example = "John Doe")
          private String fullName;
+      }
+
+      @Data
+      @AllArgsConstructor
+      @NoArgsConstructor
+      public static class TagData {
+         @Schema(description = "ID of the tag", example = "5")
+         private Long tagId;
+
+         @Schema(description = "Name of the tag", example = "Promo")
+         private String name;
       }
    }
 
