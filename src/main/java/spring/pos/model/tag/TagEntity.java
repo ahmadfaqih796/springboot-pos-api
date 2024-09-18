@@ -3,6 +3,8 @@ package spring.pos.model.tag;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class TagEntity {
    private String name;
 
    @ManyToMany(mappedBy = "tags")
+   @JsonBackReference
    private Set<ProductEntity> products = new HashSet<>();
 
    public TagEntity() {

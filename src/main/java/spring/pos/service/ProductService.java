@@ -55,7 +55,8 @@ public class ProductService {
          String keyword,
          boolean disabledPagination) {
       Specification<ProductEntity> spec = ProductSpecification.containsKeyword(keyword);
-      return PaginationHelper.buildResponse(page, size, sortField, sortDir, disabledPagination, spec,
+      return PaginationHelper.buildResponse(page, size, sortField, sortDir,
+            disabledPagination, spec,
             productRepository);
    }
 

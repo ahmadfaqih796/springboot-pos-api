@@ -12,12 +12,14 @@ public class ProductSpecification {
 
          var userJoin = root.join("userEntity", JoinType.LEFT);
          var roleJoin = userJoin.join("roleEntity", JoinType.LEFT);
+         var tagJoin = root.joinSet("tags", JoinType.LEFT);
 
          return builder.or(
                builder.like(builder.toString(root.get("productId")), pattern),
                builder.like(builder.lower(root.get("name")), pattern),
                builder.like(builder.lower(userJoin.get("fullName")), pattern),
-               builder.like(builder.toString(roleJoin.get("name")), pattern));
+               builder.like(builder.toString(roleJoin.get("name")), pattern),
+               builder.like(builder.lower(tagJoin.get("name")), pattern));
       };
    }
 
