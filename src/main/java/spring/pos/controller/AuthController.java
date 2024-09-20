@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import spring.pos.schema.auth.login.LoginRequest;
 import spring.pos.schema.auth.login.LoginResponse;
 import spring.pos.schema.auth.register.RegisterRequest;
@@ -17,6 +18,7 @@ import spring.pos.service.AuthService;
 @CrossOrigin
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "Endpoints for user authentication and registration")
 public class AuthController {
 
    @Autowired

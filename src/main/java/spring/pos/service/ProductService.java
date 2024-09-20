@@ -36,6 +36,7 @@ import spring.pos.model.tag.TagEntity;
 import spring.pos.model.tag.TagRepository;
 import spring.pos.schema.management.product.ProductRequest;
 import spring.pos.schema.management.product.ProductResponse;
+import spring.pos.schema.management.product.ProductResponseV2;
 import spring.pos.schema.management.product.ProductResponse.ProductData;
 import spring.pos.schema.management.product.ProductResponse.ProductData.CreatedBy;
 import spring.pos.util.ResponseHandler;
@@ -74,7 +75,7 @@ public class ProductService {
             ProductMapper::toResponse);
    }
 
-   public ResponseEntity<ProductResponse> create(ProductRequest.CreateRequest req) {
+   public ResponseEntity<ProductResponseV2.Post> create(ProductRequest.CreateRequest req) {
       try {
 
          Optional<ProductEntity> existingProduct = productRepository.findByName(req.getName());
@@ -82,9 +83,11 @@ public class ProductService {
             throw new IllegalArgumentException("Product name already exists");
          }
 
-         List<TagEntity> tagList = tagRepository.findAllById(req.getTagIds());
-
-         Set<TagEntity> tags = new HashSet<>(tagList);
+         Set<TagEntity> tags = new HashSet<>();
+         if (req.getTagIds() != null && !req.getTagIds().isEmpty()) {
+            List<TagEntity> tagList = tagRepository.findAllById(req.getTagIds());
+            tags.addAll(tagList);
+         }
 
          ProductEntity productEntity = new ProductEntity(
                req.getName(),
@@ -96,25 +99,28 @@ public class ProductService {
          productEntity.setTags(tags);
 
          ProductEntity savedProduct = productRepository.save(productEntity);
+         ProductData productData = responseProductData(savedProduct);
 
-         CreatedBy createdBy = Optional.ofNullable(savedProduct.getUserEntity())
-               .map(user -> new CreatedBy(user.getAgentId(), user.getFullName()))
-               .orElse(null);
+         // CreatedBy createdBy = Optional.ofNullable(savedProduct.getUserEntity())
+         // .map(user -> new CreatedBy(user.getAgentId(), user.getFullName()))
+         // .orElse(null);
 
-         // Siapkan data tag untuk response
-         List<ProductResponse.ProductData.TagData> tagDataList = savedProduct.getTags().stream()
-               .map(tag -> new ProductResponse.ProductData.TagData(tag.getTagId(), tag.getName()))
-               .collect(Collectors.toList());
+         // // Siapkan data tag untuk response
+         // List<ProductResponse.ProductData.TagData> tagDataList =
+         // savedProduct.getTags().stream()
+         // .map(tag -> new ProductResponse.ProductData.TagData(tag.getTagId(),
+         // tag.getName()))
+         // .collect(Collectors.toList());
 
-         ProductData productData = new ProductData(
-               savedProduct.getProductId(),
-               savedProduct.getName(),
-               savedProduct.getPrice(),
-               savedProduct.getStock(),
-               savedProduct.getCreatedAt(),
-               savedProduct.getUpdatedAt(),
-               createdBy,
-               tagDataList);
+         // ProductData productData = new ProductData(
+         // savedProduct.getProductId(),
+         // savedProduct.getName(),
+         // savedProduct.getPrice(),
+         // savedProduct.getStock(),
+         // savedProduct.getCreatedAt(),
+         // savedProduct.getUpdatedAt(),
+         // createdBy,
+         // tagDataList);
 
          return ResponseHandler.generateResponse("Product successfully created", HttpStatus.OK, productData);
 
@@ -123,7 +129,7 @@ public class ProductService {
       }
    }
 
-   public ResponseEntity<ProductResponse> update(Long productId, ProductRequest.UpdateRequest req) {
+   public ResponseEntity<ProductResponseV2.Update> update(Long productId, ProductRequest.UpdateRequest req) {
 
       ProductEntity checkedProduct = productRepository.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("Product not found"));
@@ -134,9 +140,11 @@ public class ProductService {
       }
 
       try {
-         // Ambil TagEntity berdasarkan tagIds dari request
-         List<TagEntity> tagList = tagRepository.findAllById(req.getTagIds()); // Mengambil tag sebagai List
-         Set<TagEntity> tags = new HashSet<>(tagList); // Konversi ke Set
+         Set<TagEntity> tags = new HashSet<>();
+         if (req.getTagIds() != null && !req.getTagIds().isEmpty()) {
+            List<TagEntity> tagList = tagRepository.findAllById(req.getTagIds());
+            tags.addAll(tagList);
+         }
          ProductEntity productEntity = new ProductEntity(
                productId,
                req.getName(),
@@ -146,25 +154,9 @@ public class ProductService {
                LocalDateTime.now(),
                sessionService.getUserSession());
          productEntity.setTags(tags);
+
          ProductEntity updatedProduct = productRepository.save(productEntity);
-
-         CreatedBy createdBy = Optional.ofNullable(updatedProduct.getUserEntity())
-               .map(user -> new CreatedBy(user.getAgentId(), user.getFullName()))
-               .orElse(null);
-
-         // Siapkan data tag untuk response
-         List<ProductResponse.ProductData.TagData> tagDataList = updatedProduct.getTags().stream()
-               .map(tag -> new ProductResponse.ProductData.TagData(tag.getTagId(), tag.getName()))
-               .collect(Collectors.toList());
-         ProductData productData = new ProductData(
-               updatedProduct.getProductId(),
-               updatedProduct.getName(),
-               updatedProduct.getPrice(),
-               updatedProduct.getStock(),
-               checkedProduct.getCreatedAt(),
-               updatedProduct.getUpdatedAt(),
-               createdBy,
-               tagDataList);
+         ProductData productData = responseProductData(updatedProduct);
 
          return ResponseHandler.generateResponse("Product successfully updated", HttpStatus.OK, productData);
       } catch (Exception e) {
@@ -172,34 +164,44 @@ public class ProductService {
       }
    }
 
-   public ResponseEntity<ProductResponse> delete(Long productId) {
+   public ResponseEntity<ProductResponseV2.Delete> delete(Long productId) {
 
       ProductEntity checkedProduct = productRepository.findById(productId)
             .orElseThrow(() -> new IllegalArgumentException("Product not found"));
-      CreatedBy createdBy = Optional.ofNullable(checkedProduct.getUserEntity())
-            .map(user -> new CreatedBy(user.getAgentId(), user.getFullName()))
-            .orElse(null);
-
-      // Siapkan data tag untuk response
-      List<ProductResponse.ProductData.TagData> tagDataList = checkedProduct.getTags().stream()
-            .map(tag -> new ProductResponse.ProductData.TagData(tag.getTagId(), tag.getName()))
-            .collect(Collectors.toList());
 
       try {
          productRepository.delete(checkedProduct);
-         ProductData productData = new ProductData(
-               checkedProduct.getProductId(),
-               checkedProduct.getName(),
-               checkedProduct.getPrice(),
-               checkedProduct.getStock(),
-               checkedProduct.getCreatedAt(),
-               checkedProduct.getUpdatedAt(),
-               createdBy,
-               tagDataList);
+         ProductData productData = responseProductData(checkedProduct);
+
          return ResponseHandler.generateResponse("Product successfully deleted", HttpStatus.OK, productData);
       } catch (Exception e) {
          throw new IllegalArgumentException(e.getMessage());
       }
+   }
+
+   public ProductData responseProductData(ProductEntity productEntity) {
+      // Build CreatedBy object
+      CreatedBy createdBy = Optional.ofNullable(productEntity.getUserEntity())
+            .map(user -> new CreatedBy(user.getAgentId(), user.getFullName()))
+            .orElse(null);
+
+      // Build TagData list
+      List<ProductResponse.ProductData.TagData> tagDataList = productEntity.getTags().isEmpty()
+            ? null
+            : productEntity.getTags().stream()
+                  .map(tag -> new ProductResponse.ProductData.TagData(tag.getTagId(), tag.getName()))
+                  .collect(Collectors.toList());
+
+      // Build and return ProductData
+      return new ProductData(
+            productEntity.getProductId(),
+            productEntity.getName(),
+            productEntity.getPrice(),
+            productEntity.getStock(),
+            productEntity.getCreatedAt(),
+            productEntity.getUpdatedAt(),
+            createdBy,
+            tagDataList);
    }
 
    public ResponseEntity<byte[]> exportToPdf(List<ProductEntity> products) {

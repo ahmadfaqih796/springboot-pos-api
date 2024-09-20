@@ -1,7 +1,7 @@
 package spring.pos.controller;
 
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import spring.pos.model.product.ProductEntity;
 import spring.pos.model.product.ProductSpecification;
 import spring.pos.schema.management.product.ProductRequest;
-import spring.pos.schema.management.product.ProductResponse;
 import spring.pos.schema.management.product.ProductResponseV2;
 import spring.pos.service.ProductService;
 import spring.pos.util.ResponseHandler;
@@ -55,19 +54,20 @@ public class ProductController {
    }
 
    @PostMapping()
-   public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest.CreateRequest productRequest) {
+   public ResponseEntity<ProductResponseV2.Post> createProduct(
+         @RequestBody ProductRequest.CreateRequest productRequest) {
       return productService.create(productRequest);
    }
 
    @PutMapping("/{productId}")
-   public ResponseEntity<ProductResponse> updateProduct(
+   public ResponseEntity<ProductResponseV2.Update> updateProduct(
          @PathVariable Long productId,
          @RequestBody ProductRequest.UpdateRequest productRequest) {
       return productService.update(productId, productRequest);
    }
 
    @DeleteMapping("/{productId}")
-   public ResponseEntity<ProductResponse> deleteProduct(@PathVariable Long productId) {
+   public ResponseEntity<ProductResponseV2.Delete> deleteProduct(@PathVariable Long productId) {
       return productService.delete(productId);
    }
 
