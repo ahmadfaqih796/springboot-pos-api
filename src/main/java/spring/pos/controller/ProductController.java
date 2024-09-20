@@ -21,6 +21,7 @@ import spring.pos.model.product.ProductEntity;
 import spring.pos.model.product.ProductSpecification;
 import spring.pos.schema.management.product.ProductRequest;
 import spring.pos.schema.management.product.ProductResponse;
+import spring.pos.schema.management.product.ProductResponseV2;
 import spring.pos.service.ProductService;
 import spring.pos.util.ResponseHandler;
 
@@ -40,7 +41,7 @@ public class ProductController {
    }
 
    @GetMapping()
-   public ResponseEntity<ProductResponse> getProducts(
+   public ResponseEntity<ProductResponseV2.Get> getProducts(
          @RequestParam(defaultValue = "0") int page,
          @RequestParam(defaultValue = "10") int size,
          @RequestParam(value = "sortField", defaultValue = "productId") String sortField,
