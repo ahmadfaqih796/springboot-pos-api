@@ -3,8 +3,11 @@ package spring.pos.helper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -87,6 +90,28 @@ public class PaginationHelper {
       } else {
          Page<T> paginatedData = (Page<T>) fetchData(page, size, sortField, sortDir, false, spec, repository);
          return responsePagination(paginatedData);
+      }
+   }
+
+   @SuppressWarnings("unchecked")
+   public static <T, R> Map<String, Object> buildResponse(
+         int page,
+         int size,
+         String sortField,
+         String sortDir,
+         boolean disabledPagination,
+         Specification<T> spec,
+         JpaSpecificationExecutor<T> repository,
+         Function<T, R> converter) {
+      if (disabledPagination) {
+         List<T> allData = (List<T>) fetchData(page, size, sortField, sortDir, true, spec, repository);
+         List<R> convertedData = allData.stream().map(converter).collect(Collectors.toList());
+         return responseDisabledPagination(convertedData);
+      } else {
+         Page<T> paginatedData = (Page<T>) fetchData(page, size, sortField, sortDir, false, spec, repository);
+         List<R> convertedData = paginatedData.getContent().stream().map(converter).collect(Collectors.toList());
+         return responsePagination(
+               new PageImpl<>(convertedData, paginatedData.getPageable(), paginatedData.getTotalElements()));
       }
    }
 }

@@ -40,7 +40,7 @@ public class ProductController {
    }
 
    @GetMapping()
-   public ResponseEntity<Map<String, Object>> getProducts(
+   public ResponseEntity<ProductResponse> getProducts(
          @RequestParam(defaultValue = "0") int page,
          @RequestParam(defaultValue = "10") int size,
          @RequestParam(value = "sortField", defaultValue = "productId") String sortField,
@@ -68,6 +68,20 @@ public class ProductController {
    @DeleteMapping("/{productId}")
    public ResponseEntity<ProductResponse> deleteProduct(@PathVariable Long productId) {
       return productService.delete(productId);
+   }
+
+   @GetMapping("/export/excel")
+   public ResponseEntity<byte[]> exportProductsToExcel(
+         @RequestParam(value = "keyword", defaultValue = "") String keyword) {
+      List<ProductEntity> products = productService.getAll(keyword);
+      return productService.exportToExcel(products);
+   }
+
+   @GetMapping("/export/pdf")
+   public ResponseEntity<byte[]> exportProductsToPdf(
+         @RequestParam(value = "keyword", defaultValue = "") String keyword) {
+      List<ProductEntity> products = productService.getAll(keyword);
+      return productService.exportToPdf(products);
    }
 
 }

@@ -1,5 +1,6 @@
 package spring.pos.service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -8,15 +9,27 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+
 import jakarta.transaction.TransactionScoped;
 import spring.pos.helper.PaginationHelper;
 import spring.pos.model.product.ProductEntity;
+import spring.pos.model.product.ProductMapper;
 import spring.pos.model.product.ProductRepository;
 import spring.pos.model.product.ProductSpecification;
 import spring.pos.model.tag.TagEntity;
@@ -57,7 +70,8 @@ public class ProductService {
       Specification<ProductEntity> spec = ProductSpecification.containsKeyword(keyword);
       return PaginationHelper.buildResponse(page, size, sortField, sortDir,
             disabledPagination, spec,
-            productRepository);
+            productRepository,
+            ProductMapper::toResponse);
    }
 
    public ResponseEntity<ProductResponse> create(ProductRequest.CreateRequest req) {
@@ -188,4 +202,68 @@ public class ProductService {
       }
    }
 
+   public ResponseEntity<byte[]> exportToPdf(List<ProductEntity> products) {
+      try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+         PdfWriter writer = new PdfWriter(out);
+         Document document = new Document(new com.itextpdf.kernel.pdf.PdfDocument(writer));
+
+         document.add(new Paragraph("Product List"));
+
+         for (ProductEntity product : products) {
+            document.add(new Paragraph(
+                  "ID: " + product.getProductId() +
+                        ", Name: " + product.getName() +
+                        ", Price: " + product.getPrice() +
+                        ", Stock: " + product.getStock()));
+         }
+
+         document.close();
+         byte[] bytes = out.toByteArray();
+
+         HttpHeaders headersPdf = new HttpHeaders();
+         headersPdf.add("Content-Disposition", "attachment; filename=products.pdf");
+
+         return new ResponseEntity<>(bytes, headersPdf, HttpStatus.OK);
+
+      } catch (Exception e) {
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+   }
+
+   public ResponseEntity<byte[]> exportToExcel(List<ProductEntity> products) {
+      try (Workbook workbook = new XSSFWorkbook()) {
+         Sheet sheet = workbook.createSheet("Products");
+         Row headerRow = sheet.createRow(0);
+
+         // Create header
+         String[] headers = { "No", "Name", "Price", "Stock" };
+         for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+         }
+
+         // Add data rows
+         int rowIdx = 1;
+         for (ProductEntity product : products) {
+            Row row = sheet.createRow(rowIdx++);
+            row.createCell(0).setCellValue(rowIdx - 1);
+            row.createCell(1).setCellValue(product.getName());
+            row.createCell(2).setCellValue(product.getPrice());
+            row.createCell(3).setCellValue(product.getStock());
+         }
+
+         // Write to byte array
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         workbook.write(out);
+         byte[] bytes = out.toByteArray();
+
+         HttpHeaders headersExcel = new HttpHeaders();
+         headersExcel.add("Content-Disposition", "attachment; filename=products.xlsx");
+
+         return new ResponseEntity<>(bytes, headersExcel, HttpStatus.OK);
+
+      } catch (IOException e) {
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+   }
 }
